@@ -2,7 +2,7 @@
 
 Flutter project using tflite
 
-## Download dataser
+## Download dataset
 
 https://www.kaggle.com/datasets/tongpython/cat-and-dog
 
