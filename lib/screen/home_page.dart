@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:tflite/tflite.dart';
+import 'package:image_picker/image_picker.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -8,7 +12,66 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool isloading = true;
+  bool _isloading = true;
+
+  File? _image;
+  List? _output;
+  final _picker = ImagePicker();
+
+  detectImage(File image) async {
+    var output = await Tflite.runModelOnImage(
+      path: image.path,
+      numResults: 2,
+      threshold: 0.6,
+      imageMean: 127.5,
+      imageStd: 127.5,
+    );
+
+    setState(() {
+      _output = output;
+      _isloading = false;
+    });
+  }
+
+  loadModel() async {
+    await Tflite.loadModel(
+        model: 'assets/model_unquant.tflite', labels: 'assets/labels.txt');
+  }
+
+  pickImageCam() async {
+    var image = await _picker.pickImage(source: ImageSource.camera);
+
+    if (image == null) {
+      return null;
+    } else {
+      setState(() {
+        _image = File(image.path);
+      });
+    }
+
+    detectImage(_image!);
+  }
+
+  pickImageGal() async {
+    var image = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (image == null) {
+      return null;
+    } else {
+      setState(() {
+        _image = File(image.path);
+      });
+    }
+
+    detectImage(_image!);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadModel();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +88,7 @@ class _HomePageState extends State<HomePage> {
               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 50),
-            isloading
+            _isloading
                 ? const Center(
                     child: SizedBox(
                       width: 400,
@@ -33,14 +96,38 @@ class _HomePageState extends State<HomePage> {
                       child: Icon(Icons.camera_alt_sharp),
                     ),
                   )
-                : const SizedBox(),
+                : Column(
+                    children: [
+                      Container(
+                        child: _image == null
+                            ? const Icon(Icons.camera_alt_sharp)
+                            : Image.file(_image!),
+                      ),
+                      const SizedBox(height: 20),
+                      _output != null
+                          ? Text(
+                              "${_output![0]}",
+                              style: const TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                            )
+                          : const SizedBox()
+                    ],
+                  ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 ElevatedButton(
-                    onPressed: () {}, child: const Text("capture a photo")),
+                  onPressed: () {
+                    pickImageCam();
+                  },
+                  child: const Text("capture a photo"),
+                ),
                 ElevatedButton(
-                    onPressed: () {}, child: const Text("select a photo"))
+                  onPressed: () {
+                    pickImageGal();
+                  },
+                  child: const Text("select a photo"),
+                )
               ],
             ),
           ],
