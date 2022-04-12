@@ -1,6 +1,6 @@
 # catdog_detector
 
-Project using tflite
+Flutter project using tflite
 
 ## Download dataser
 
