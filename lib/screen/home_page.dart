@@ -77,8 +77,8 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
+          // crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 50),
             const Text("Faiz Project"),
@@ -104,15 +104,24 @@ class _HomePageState extends State<HomePage> {
                             : Image.file(_image!),
                       ),
                       const SizedBox(height: 20),
+                      Text(
+                        "Confident ${_output![0]['confidence'] * 100}%",
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 20),
                       _output != null
                           ? Text(
-                              "${_output![0]}",
+                              _output![0]['index'] == 1 ? 'ANJING' : 'KUCING',
                               style: const TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
+                                  fontSize: 24, fontWeight: FontWeight.bold),
                             )
-                          : const SizedBox()
+                          : const SizedBox(),
                     ],
                   ),
+            const SizedBox(
+              height: 30,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
